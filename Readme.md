@@ -17,7 +17,7 @@ dotnet paket add NSubstituteEquivalency
 ```
 
 ## Release History
-2.0.1
+3.0.0:
 * breaking change: made ArgEx.IsCollectionEquivalentTo() generic, introduced ArgEx.IsEnumerableEquivalentTo() and ArgEx.IsArrayEquivalentTo() to support various collection types in arguments
 
 2.0.0
