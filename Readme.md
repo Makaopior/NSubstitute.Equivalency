@@ -17,6 +17,9 @@ dotnet paket add NSubstituteEquivalency
 ```
 
 ## Release History
+2.0.1
+* breaking change: made ArgEx.IsCollectionEquivalentTo() generic, introduced ArgEx.IsEnumerableEquivalentTo() and ArgEx.IsArrayEquivalentTo() to support various collection types in arguments
+
 2.0.0
 * breaking change: upgraded to FluentAssertions 6.x
 
@@ -61,10 +64,23 @@ var service = Substitute.For<ISomeInterface>();
 DoSomethingWith(service);
 
 service.Received()
-    .UseCollection(ArgEx.IsCollectionEquivalentTo(new []
+    .UseArray(ArgEx.IsArrayEquivalentTo(new []
     {
         new Person(){FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
         new Person(){FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
     }));
 ```
 
+or 
+
+```csharp
+var service = Substitute.For<ISomeInterface>();
+DoSomethingWith(service);
+
+service.Received()
+    .UseEnumerable(ArgEx.IsEnumerableEquivalentTo(new []
+    {
+        new Person(){FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
+        new Person(){FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
+    }));
+```

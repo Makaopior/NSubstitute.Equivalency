@@ -18,7 +18,8 @@ namespace NSubstitute.Equivalency.Tests
         public interface ISomeInterface
         {
             void Use(Person person);
-            void UseCollection(IEnumerable<Person> people);
+            void UseEnumerable(IEnumerable<Person> people);
+            void UseArray(Person[] people);
         }
 
         [Test]
@@ -113,45 +114,126 @@ Received 1 non-matching call (non-matching arguments indicated with '*' characte
         }
 
         [Test]
-        public void Collection_if_equivalency_is_given()
+        public void Enumerable_if_equivalency_is_given()
         {
             var service = Substitute.For<ISomeInterface>();
 
-            DoSomethingElseWith(service);
+            InvokeActionOn(service, (x, y) => x.UseEnumerable(y));
 
-            service.Received().UseCollection(ArgEx.IsCollectionEquivalentTo(new []
+            service.Received().UseEnumerable(ArgEx.IsEnumerableEquivalentTo(new[]
             {
-                new Person(){FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
-                new Person(){FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
+                new Person {FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
+                new Person {FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
             }));
-        }[Test]
-        public void Collection_if_equivalency_is_not_given()
+        }
+
+        [Test]
+        public void Enumerable_with_HashSet_in_usage_if_equivalency_is_given()
         {
             var service = Substitute.For<ISomeInterface>();
 
-            DoSomethingElseWith(service);
+            service.UseEnumerable(new HashSet<Person>(){
+                new Person() { FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1) },
+                new Person() { FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13) },
+            });
 
+            service.Received().UseEnumerable(ArgEx.IsEnumerableEquivalentTo(
+                new Person { FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1) },
+                new Person { FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13) }));
+        }
+
+        [Test]
+        public void Array_if_equivalency_is_given()
+        {
+            var service = Substitute.For<ISomeInterface>();
+
+            InvokeActionOn(service, (x, y) => x.UseArray(y));
+
+            service.Received().UseArray(ArgEx.IsArrayEquivalentTo(new[]
+            {
+                new Person {FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
+                new Person {FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
+            }));
+        }
+
+        [Test]
+        public void Array_with_CollectionExpression_in_usage_if_equivalency_is_given()
+        {
+            var service = Substitute.For<ISomeInterface>();
+
+            service.UseArray([
+                new Person() { FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1) },
+                new Person() { FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13) },
+            ]);
+
+            service.Received().UseArray(ArgEx.IsArrayEquivalentTo(new [] {
+                new Person {FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
+                new Person {FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
+            }));
+        }
+
+        [Test]
+        public void Array_with_CollectionExpression_in_equivalence_check_if_equivalency_is_given()
+        {
+            var service = Substitute.For<ISomeInterface>();
+
+            service.UseArray(new []{
+                new Person() { FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1) },
+                new Person() { FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13) },
+            });
+
+            service.Received().UseArray(ArgEx.IsArrayEquivalentTo([
+                new Person {FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
+                new Person {FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
+            ]));
+        }
+
+        [Test]
+        public void Enumerable_if_equivalency_is_not_given()
+        {
+            var service = Substitute.For<ISomeInterface>();
+
+            InvokeActionOn(service, (x, y) => x.UseEnumerable(y));
 
             ExpectFailure(@"Expected to receive a call matching:
-	UseCollection(NSubstitute.Core.Arguments.ArgumentMatcher+GenericToNonGenericMatcherProxyWithDescribe`1[System.Collections.Generic.IEnumerable`1[NSubstitute.Equivalency.Tests.ArgExTests+Person]])
+	UseEnumerable(NSubstitute.Core.Arguments.ArgumentMatcher+GenericToNonGenericMatcherProxyWithDescribe`1[System.Collections.Generic.IEnumerable`1[NSubstitute.Equivalency.Tests.ArgExTests+Person]])
 Actually received no matching calls.
 Received 1 non-matching call (non-matching arguments indicated with '*' characters):
-	UseCollection(*Person[]*)
-		arg[0]: Expected property argument[1].Birthday to be <1972-09-14>, but found <1972-09-13>.", () => service.Received().UseCollection(ArgEx.IsCollectionEquivalentTo(new []
+	UseEnumerable(*Person[]*)
+		arg[0]: Expected property argument[1].Birthday to be <1972-09-14>, but found <1972-09-13>.", () => service.Received().UseEnumerable(ArgEx.IsEnumerableEquivalentTo(new []
             {
                 new Person(){FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
                 new Person(){FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 14)},
             })));
-            
         }
+
         [Test]
-        public void Collection_Without_ArgEx()
+        public void Array_if_equivalency_is_not_given()
+        {
+            var service = Substitute.For<ISomeInterface>();
+
+            InvokeActionOn(service, (x, y) => x.UseArray(y));
+
+            ExpectFailure(@"Expected to receive a call matching:
+	UseArray(NSubstitute.Core.Arguments.ArgumentMatcher+GenericToNonGenericMatcherProxyWithDescribe`1[NSubstitute.Equivalency.Tests.ArgExTests+Person[]])
+Actually received no matching calls.
+Received 1 non-matching call (non-matching arguments indicated with '*' characters):
+	UseArray(*Person[]*)
+		arg[0]: Expected property argument[1].Birthday to be <1972-09-14>, but found <1972-09-13>.", () => service.Received().UseArray(ArgEx.IsArrayEquivalentTo(new[]
+            {
+                new Person(){FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
+                new Person(){FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 14)},
+            })));
+        }
+
+        [Test]
+        public void Enumerable_Without_ArgEx()
         {
             var service = Substitute.For<ISomeInterface>();
             IEnumerable<Person> received = null;
-            service.WhenForAnyArgs(s => s.UseCollection(null)).Do(ci => received= ci.Arg<IEnumerable<Person>>());
+            service.WhenForAnyArgs(s => s.UseEnumerable(null)).Do(ci => received= ci.Arg<IEnumerable<Person>>());
 
-            DoSomethingElseWith(service);
+            InvokeActionOn(service, (x, y) => x.UseEnumerable(y));
 
             received.Should().BeEquivalentTo(new []
             {
@@ -160,14 +242,15 @@ Received 1 non-matching call (non-matching arguments indicated with '*' characte
             });
         }
 
-        static void DoSomethingElseWith(ISomeInterface service)
+        static void InvokeActionOn(ISomeInterface service, Action<ISomeInterface, Person[]> action)
         {
-            service.UseCollection(new []
+            action.Invoke(service, new[]
             {
                 new Person(){FirstName = "Alice", LastName = "Wonderland", Birthday = new DateTime(1968, 6, 1)},
                 new Person(){FirstName = "Bob", LastName = "Peanut", Birthday = new DateTime(1972, 9, 13)},
             });
         }
+
         static void DoSomethingWith(ISomeInterface service)
         {
             service.Use(new Person

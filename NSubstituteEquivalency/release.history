@@ -1,14 +1,16 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageReleaseNotes>
-2.0.0
-* breaking change: upgraded to FluentAssertions 6.x
-1.1.0
-	* feature: added ArgEx.IsCollectionEquivalentTo()
-1.0.0
-    initial nuget release
-    </PackageReleaseNotes>
+		2.0.1
+		* breaking change: made ArgEx.IsCollectionEquivalentTo() generic, introduced ArgEx.IsEnumerableEquivalentTo() and ArgEx.IsArrayEquivalentTo() to support various collection types in arguments
+		2.0.0
+		* breaking change: upgraded to FluentAssertions 6.x
+		1.1.0
+		* feature: added ArgEx.IsCollectionEquivalentTo()
+		1.0.0
+		initial nuget release
+	</PackageReleaseNotes>
 	  <!-- make MSBuild track this file for incremental builds. -->
 	  <!-- ref https://blogs.msdn.microsoft.com/msbuild/2005/09/26/how-to-ensure-changes-to-a-custom-target-file-prompt-a-rebuild/ -->
 	  <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
